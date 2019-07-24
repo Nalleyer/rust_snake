@@ -1,0 +1,15 @@
+[package]
+name = "r_snake"
+version = "0.1.0"
+authors = []
+edition = "2018"
+
+[dependencies]
+amethyst = {version = "0.11.0", features = ["vulkan"]}
+specs-derive = "0.4.0"
+# shred = {version = "*", features = ["nightly"]}
+
+[features]
+# empty = ["amethyst/empty"]
+# metal = ["amethyst/metal"]
+# vulkan = ["amethyst/vulkan"]
