@@ -1,23 +1,19 @@
 #[macro_use]
 extern crate specs_derive;
 
+mod assets;
 mod graph_creator;
-mod loader;
 mod states;
 mod tilemap;
-mod util;
+mod resource;
 
 use states::MyState;
 
 use amethyst::{
-    assets::{PrefabLoaderSystem, Processor},
+    assets::Processor,
     core::transform::TransformBundle,
     prelude::*,
-    renderer::{
-        sprite::{SpriteRender, SpriteSheet},
-        types::DefaultBackend,
-        RenderingSystem,
-    },
+    renderer::{sprite::SpriteSheet, types::DefaultBackend, RenderingSystem},
     utils::application_root_dir,
     window::WindowBundle,
 };

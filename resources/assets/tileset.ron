@@ -1,6 +1,6 @@
 (
     tile_width: 16,
     tile_height: 16,
-    size_x: 50,
-    size_y: 38,
+    size_x: 25,
+    size_y: 19,
 )

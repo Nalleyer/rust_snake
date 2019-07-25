@@ -1,31 +1,19 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
-    core::{transform::TransformBundle, Transform},
-    ecs::prelude::{
-        Component, DenseVecStorage, Entity, ReadExpect, Resources, SystemData, VecStorage,
-    },
+    core::{math::Vector3, Transform},
+    ecs::prelude::{Component, DenseVecStorage, Entity},
     prelude::*,
     renderer::{
         formats::texture::ImageFormat,
-        pass::DrawShadedDesc,
-        rendy::{
-            factory::Factory,
-            graph::{
-                render::{RenderGroupDesc, SubpassBuilder},
-                GraphBuilder,
-            },
-            hal::{format::Format, image},
-        },
         sprite::{SpriteRender, SpriteSheet, SpriteSheetFormat},
-        types::DefaultBackend,
-        GraphCreator, RenderingSystem, Texture,
+        Texture,
     },
-    utils::application_root_dir,
-    window::{ScreenDimensions, Window, WindowBundle},
 };
 use ron::de::from_str;
 use serde::Deserialize;
 use std::fs;
+
+use crate::resource::get_scale;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum TileDirection {
@@ -110,11 +98,14 @@ impl TileMap {
 
                 let mut transform = Transform::default();
 
+                let scale = get_scale(world);
                 transform.set_translation_xyz(
-                    (x as f32 + 0.5) * config.tile_width as f32,
-                    (y as f32 + 0.5) * config.tile_height as f32,
+                    (x as f32 + 0.5) * scale * config.tile_width as f32,
+                    (y as f32 + 0.5) * scale * config.tile_height as f32,
                     0.0,
                 );
+
+                transform.set_scale(Vector3::new(scale, scale, scale));
 
                 let entity = world
                     .create_entity()
@@ -127,8 +118,8 @@ impl TileMap {
         }
 
         TileMap {
-            tiles: tiles,
-            entities: entities,
+            tiles,
+            entities,
             tile_set: sprite_sheet_handle,
         }
     }
