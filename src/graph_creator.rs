@@ -16,7 +16,6 @@ use amethyst::{
     window::{ScreenDimensions, Window},
 };
 
-
 #[derive(Default)]
 pub struct RenderingGraph {
     dimensions: Option<ScreenDimensions>,

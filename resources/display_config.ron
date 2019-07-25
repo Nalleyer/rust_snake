@@ -1,4 +1,4 @@
 (
   title: "r_snake",
-  dimensions: Some((800, 600)),
+  dimensions: Some((800, 608)),
 )

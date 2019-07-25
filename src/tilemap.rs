@@ -109,9 +109,10 @@ impl TileMap {
                 };
 
                 let mut transform = Transform::default();
+
                 transform.set_translation_xyz(
-                    (x * config.tile_width + config.tile_width / 2) as f32,
-                    (y * config.tile_height + config.tile_height / 2) as f32,
+                    (x as f32 + 0.5) * config.tile_width as f32,
+                    (y as f32 + 0.5) * config.tile_height as f32,
                     0.0,
                 );
 

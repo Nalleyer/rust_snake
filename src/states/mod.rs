@@ -1,3 +1,3 @@
 mod mainstate;
 
-pub use self::mainstate::{MyState};
+pub use self::mainstate::MyState;

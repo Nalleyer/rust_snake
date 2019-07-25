@@ -1,5 +1,6 @@
 use crate::loader;
-use crate::tilemap::{TileMap};
+use crate::tilemap::TileMap;
+use crate::util::get_screen_size;
 
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
@@ -28,13 +29,19 @@ impl SimpleState for MyState {
         // init_image(world, &sprite_sheet_handle);
 
         let tilemap = {
-            TileMap::new(world, "assets/snake.png", "assets/snake.ron", "resources/assets/tileset.ron")
+            TileMap::new(
+                world,
+                "assets/snake.png",
+                "assets/snake.ron",
+                "resources/assets/tileset.ron",
+            )
         };
+        let (width, height) = get_screen_size(world);
+        let mut transform = Transform::default();
 
-        world.create_entity()
-            .with(Transform::default())
-            .with(tilemap)
-            .build();
+        transform.set_translation_xyz((width * 0.5) as f32, (height * 0.5) as f32, 0.0);
+
+        world.create_entity().with(transform).with(tilemap).build();
         println!("init tile");
     }
 }
@@ -60,13 +67,7 @@ fn init_image(world: &mut World, sprite_sheet_handle: &Handle<SpriteSheet>) {
 
 fn initialise_camera(world: &mut World) {
     // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left.
-    let (width, height) = {
-        let dimensions = world.read_resource::<ScreenDimensions>();
-
-        let width = dimensions.width();
-        let height = dimensions.height();
-        (width, height)
-    };
+    let (width, height) = get_screen_size(world);
 
     let mut transform = Transform::default();
     transform.set_translation_xyz(width * 0.5, height * 0.5, 1.0);

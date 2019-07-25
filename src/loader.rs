@@ -1,13 +1,13 @@
 use amethyst::{
-  assets::{AssetStorage, Handle, Loader},
-  core::Transform,
-  prelude::*,
-  renderer::{ImageFormat, Texture},
+    assets::{AssetStorage, Handle, Loader},
+    core::Transform,
+    prelude::*,
+    renderer::{ImageFormat, Texture},
 };
 
 pub fn load_texture<N>(name: N, world: &mut World) -> Handle<Texture>
 where
-   N: Into<String>,
+    N: Into<String>,
 {
     let loader = world.read_resource::<Loader>();
     loader.load(
