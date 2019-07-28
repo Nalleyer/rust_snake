@@ -32,7 +32,6 @@ impl<'s> System<'s> for TileSystem {
 
                         if let Some(trans) = transforms.get_mut(entity) {
                             trans.set_rotation_z_axis(match cell.direction {
-                                MovingDirection::None => 0.0,
                                 MovingDirection::Up => 0.0,
                                 MovingDirection::Down => PI,
                                 MovingDirection::Right => -PI * 0.5,

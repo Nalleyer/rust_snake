@@ -1,3 +1,4 @@
 (
     scale: 2.0,
+    tick_duration: 0.5,
 )

@@ -2,11 +2,32 @@ use crate::assets::{T_BODY, T_HEAD};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum MovingDirection {
-    None,
     Left,
     Right,
     Up,
     Down,
+}
+
+impl MovingDirection {
+    pub fn from_axis_x(x: f64) -> Option<Self> {
+        if x > 0.8 {
+            Some(MovingDirection::Right)
+        } else if x < -0.8 {
+            Some(MovingDirection::Left)
+        } else {
+            None
+        }
+    }
+
+    pub fn from_axis_y(y: f64) -> Option<Self> {
+        if y > 0.8 {
+            Some(MovingDirection::Up)
+        } else if y < -0.8 {
+            Some(MovingDirection::Down)
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -20,7 +41,7 @@ impl Default for Cell {
     fn default() -> Self {
         Cell {
             ttype: 0,
-            direction: MovingDirection::None,
+            direction: MovingDirection::Up,
             pos: 0,
         }
     }

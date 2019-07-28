@@ -1,6 +1,5 @@
-use crate::assets::Context;
 use crate::components::{TileMap, TileMapConfig};
-use crate::resources::{get_screen_size, Board};
+use crate::resources::{get_screen_size, Board, Context};
 
 use amethyst::{core::Transform, prelude::*, renderer::Camera};
 

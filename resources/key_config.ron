@@ -1,0 +1,9 @@
+(
+  axes: {
+    "move_x": Emulated(pos: Key(D), neg: Key(A)),
+    "move_y": Emulated(pos: Key(W), neg: Key(S)),
+  },
+  actions: {
+    //"shift": [[Key(LShift)], [Key(RShift)]],
+  },
+)

@@ -5,6 +5,7 @@ use std::fs;
 #[derive(Debug, Deserialize)]
 pub struct Context {
     pub scale: f32,
+    pub tick_duration: f64,
 }
 
 impl Context {
