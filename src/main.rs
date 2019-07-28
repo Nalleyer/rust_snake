@@ -2,10 +2,11 @@
 extern crate specs_derive;
 
 mod assets;
+mod components;
 mod graph_creator;
+mod resources;
 mod states;
-mod tilemap;
-mod resource;
+mod systems;
 
 use states::MyState;
 
@@ -17,6 +18,8 @@ use amethyst::{
     utils::application_root_dir,
     window::WindowBundle,
 };
+
+use crate::systems::TileSystem;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -34,6 +37,7 @@ fn main() -> amethyst::Result<()> {
             "sprite_sheet_processor",
             &[],
         )
+        .with(TileSystem, "tile_system", &[])
         .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
             graph_creator::RenderingGraph::default(),
         ));

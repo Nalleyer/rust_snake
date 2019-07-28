@@ -13,41 +13,27 @@ use ron::de::from_str;
 use serde::Deserialize;
 use std::fs;
 
-use crate::resource::get_scale;
+use crate::resources::get_scale;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub enum TileDirection {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Tile {
-    ttype: u8,
-    direction: TileDirection,
-}
+pub struct Tile;
 
 impl Default for Tile {
     fn default() -> Self {
-        Tile {
-            ttype: 0,
-            direction: TileDirection::Up,
-        }
+        Tile {}
     }
 }
 
 #[derive(Debug, Deserialize)]
 pub struct TileMapConfig {
-    tile_width: usize,
-    tile_height: usize,
-    size_x: usize,
-    size_y: usize,
+    pub tile_width: usize,
+    pub tile_height: usize,
+    pub size_x: usize,
+    pub size_y: usize,
 }
 
 impl TileMapConfig {
-    fn from_path(path: &str) -> TileMapConfig {
+    pub fn from_path(path: &str) -> TileMapConfig {
         let file_content = fs::read_to_string(path).expect("reading tilemap setting");
         from_str(&file_content).expect("parsing tile config")
     }
@@ -56,9 +42,9 @@ impl TileMapConfig {
 #[derive(Component, Debug)]
 #[storage(DenseVecStorage)]
 pub struct TileMap {
-    tiles: Vec<Tile>, // list of tile type
-    entities: Vec<Entity>,
-    tile_set: Handle<SpriteSheet>,
+    pub entities: Vec<Entity>,
+    pub tile_set: Handle<SpriteSheet>,
+    len: usize,
 }
 
 impl TileMap {
@@ -66,9 +52,8 @@ impl TileMap {
         world: &mut World,
         asset_path: &str,
         asset_config: &str,
-        config_path: &str,
+        config: &TileMapConfig,
     ) -> TileMap {
-        let config = TileMapConfig::from_path(config_path);
         let texture_handle = {
             let loader = world.read_resource::<Loader>();
             let texture_storage = world.read_resource::<AssetStorage<Texture>>();
@@ -87,7 +72,6 @@ impl TileMap {
         };
 
         let mut entities: Vec<Entity> = vec![];
-        let mut tiles: Vec<Tile> = vec![];
 
         for x in 0..config.size_x {
             for y in 0..config.size_y {
@@ -113,14 +97,18 @@ impl TileMap {
                     .with(sprite_render.clone())
                     .build();
                 entities.push(entity);
-                tiles.push(Tile::default());
             }
         }
 
+        let len = entities.len();
         TileMap {
-            tiles,
             entities,
             tile_set: sprite_sheet_handle,
+            len,
         }
+    }
+
+    pub fn len(&self) -> usize {
+        self.len
     }
 }

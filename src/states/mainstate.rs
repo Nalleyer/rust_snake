@@ -1,6 +1,6 @@
 use crate::assets::Context;
-use crate::tilemap::TileMap;
-use crate::resource::get_screen_size;
+use crate::components::{TileMap, TileMapConfig};
+use crate::resources::{get_screen_size, Board};
 
 use amethyst::{core::Transform, prelude::*, renderer::Camera};
 
@@ -14,14 +14,12 @@ impl SimpleState for MyState {
 
         world.add_resource(Context::new());
 
-        let tilemap = {
-            TileMap::new(
-                world,
-                "assets/snake.png",
-                "assets/snake.ron",
-                "resources/assets/tileset.ron",
-            )
-        };
+        let tile_config = TileMapConfig::from_path("resources/assets/tileset.ron");
+        let board = Board::new(tile_config.size_x, tile_config.size_y);
+
+        world.add_resource(board);
+
+        let tilemap = { TileMap::new(world, "assets/snake.png", "assets/snake.ron", &tile_config) };
         let (width, height) = get_screen_size(world);
         let mut transform = Transform::default();
 
