@@ -5,7 +5,7 @@ use amethyst::{
     input::{InputHandler, StringBindings},
 };
 
-use crate::resources::{Context, MessageChannel, MovingDirection, Msg};
+use crate::resources::{Board, Context, MessageChannel, MovingDirection, Msg};
 
 #[derive(Debug)]
 pub struct InputSystem {
@@ -28,9 +28,10 @@ impl<'s> System<'s> for InputSystem {
         Read<'s, InputHandler<StringBindings>>,
         ReadExpect<'s, Context>,
         Write<'s, MessageChannel>,
+        ReadExpect<'s, Board>,
     );
 
-    fn run(&mut self, (time, input, ctx, mut messages): Self::SystemData) {
+    fn run(&mut self, (time, input, ctx, mut messages, board): Self::SystemData) {
         let mx = input.axis_value("move_x");
         let my = input.axis_value("move_y");
         if self.pressed.is_none() {
@@ -57,8 +58,14 @@ impl<'s> System<'s> for InputSystem {
         if now > new_tick {
             self.last_tick = new_tick;
             if let Some(direction) = &self.pressed {
-                messages.single_write(Msg::Move(direction.clone()));
+                if board.input_valid(direction) {
+                    messages.single_write(Msg::Move(direction.clone()));
+                } else {
+                    messages.single_write(Msg::Move(board.current_direction().clone()));
+                }
                 self.pressed = None;
+            } else {
+                messages.single_write(Msg::Move(board.current_direction().clone()));
             }
         }
     }

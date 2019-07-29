@@ -20,12 +20,12 @@ impl<'s> System<'s> for TileSystem {
 
     fn run(&mut self, (board, mut sprite_renders, mut transforms, mut tilemaps): Self::SystemData) {
         for (tilemap) in (&mut tilemaps).join() {
-            for idx in (0..tilemap.len()) {
+            for idx in 0..tilemap.len() {
                 let mut updated = false;
                 let snake = board.get_snake();
-                for (idx_snake, cell) in snake.0.iter().enumerate() {
-                    if idx_snake == idx {
-                        let entity = tilemap.entities[idx_snake];
+                for cell in snake.0.iter() {
+                    if cell.pos == idx {
+                        let entity = tilemap.entities[idx];
                         if let Some(sprite_render) = sprite_renders.get_mut(entity) {
                             sprite_render.sprite_number = cell.ttype as usize;
                         }
@@ -47,16 +47,20 @@ impl<'s> System<'s> for TileSystem {
                     continue;
                 }
 
-                let food_entity = tilemap.entities[board.get_food_pos()];
-                if let Some(sprite_render) = sprite_renders.get_mut(food_entity) {
-                    sprite_render.sprite_number = T_FOOD as usize;
-                    updated = true;
+                let food_pos = board.get_food_pos();
+                if idx == food_pos {
+                    let food_entity = tilemap.entities[idx];
+                    if let Some(sprite_render) = sprite_renders.get_mut(food_entity) {
+                        sprite_render.sprite_number = T_FOOD as usize;
+                        updated = true;
+                    }
                 }
+
                 if updated {
                     continue;
                 }
 
-                if let Some(sprite_render) = sprite_renders.get_mut(food_entity) {
+                if let Some(sprite_render) = sprite_renders.get_mut(tilemap.entities[idx]) {
                     sprite_render.sprite_number = T_EMPTY as usize;
                 }
             }
