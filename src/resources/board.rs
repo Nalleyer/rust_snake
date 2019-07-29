@@ -1,4 +1,8 @@
+extern crate rand;
 use crate::assets::{T_BODY, T_HEAD};
+
+use rand::distributions::{Distribution, Uniform};
+use std::collections::VecDeque;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum MovingDirection {
@@ -77,6 +81,7 @@ pub struct Board {
     height: usize,
     snake: Snake,
     food: usize,
+    new_bodies: VecDeque<Cell>,
 }
 
 impl Board {
@@ -90,6 +95,7 @@ impl Board {
                 Cell::new(T_HEAD, MovingDirection::Right, 1),
                 Cell::new(T_BODY, MovingDirection::Up, 0),
             ]),
+            new_bodies: VecDeque::new(),
         }
     }
 
@@ -114,6 +120,15 @@ impl Board {
 
     pub fn move_snake(&mut self, direction: &MovingDirection) {
         let new_cell = self.get_new_head(direction);
+
+        if new_cell.pos == self.food {
+            self.new_bodies.push_back(new_cell.clone());
+            self.food = self.get_new_food();
+        }
+
+        let is_has_new_body = self.new_bodies.len() > 0
+            && self.snake.0[self.snake.0.len() - 1].pos == self.new_bodies[0].pos;
+
         let len = self.snake.0.len();
         for idx in (1..len).rev() {
             self.snake.0[idx] = self.snake.0[idx - 1].clone();
@@ -124,6 +139,12 @@ impl Board {
             self.snake.0[1].direction = direction.clone();
         }
         self.snake.0[0] = new_cell;
+
+        if is_has_new_body {
+            let mut new_body = self.new_bodies.pop_front().unwrap();
+            new_body.ttype = T_BODY;
+            self.snake.0.push(new_body);
+        }
     }
 
     pub fn current_direction(&self) -> &MovingDirection {
@@ -152,6 +173,27 @@ impl Board {
         };
 
         Cell::new(T_HEAD, direction.clone(), new_pos)
+    }
+
+    fn get_new_food(&self) -> usize {
+        let mut rng = rand::thread_rng();
+        let die = Uniform::from(0..self.len());
+        let mut new_food = die.sample(&mut rng);
+        loop {
+            if !self.is_in_snake(&new_food) && new_food != self.food {
+                return new_food;
+            }
+            new_food = die.sample(&mut rng);
+        }
+    }
+
+    fn is_in_snake(&self, idx: &usize) -> bool {
+        self.snake
+            .0
+            .iter()
+            .map(|cell| cell.pos)
+            .collect::<Vec<usize>>()
+            .contains(idx)
     }
 
     fn len(&self) -> usize {

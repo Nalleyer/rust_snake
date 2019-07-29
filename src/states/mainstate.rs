@@ -25,7 +25,6 @@ impl SimpleState for MyState {
         transform.set_translation_xyz((width * 0.5) as f32, (height * 0.5) as f32, 0.0);
 
         world.create_entity().with(transform).with(tilemap).build();
-        println!("init tile");
     }
 }
 

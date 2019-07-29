@@ -41,7 +41,6 @@ impl<'s> System<'s> for InputSystem {
             if let Some(x_value) = mx {
                 if let Some(input) = MovingDirection::from_axis_x(x_value) {
                     self.pressed.replace(input);
-                    println!("p {:?}", self.pressed);
                 }
             }
         }
@@ -50,7 +49,6 @@ impl<'s> System<'s> for InputSystem {
             if let Some(y_value) = my {
                 if let Some(input) = MovingDirection::from_axis_y(y_value) {
                     self.pressed.replace(input);
-                    println!("p {:?}", self.pressed);
                 }
             }
         }

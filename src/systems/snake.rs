@@ -28,7 +28,6 @@ impl<'s> System<'s> for SnakeSystem {
                 Msg::Move(direction) => board.move_snake(direction),
                 _ => (),
             }
-            println!("{:?}", *board);
         }
     }
 }
