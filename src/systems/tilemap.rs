@@ -19,7 +19,7 @@ impl<'s> System<'s> for TileSystem {
     );
 
     fn run(&mut self, (board, mut sprite_renders, mut transforms, mut tilemaps): Self::SystemData) {
-        for (tilemap) in (&mut tilemaps).join() {
+        for tilemap in (&mut tilemaps).join() {
             for idx in 0..tilemap.len() {
                 let mut updated = false;
                 let snake = board.get_snake();

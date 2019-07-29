@@ -20,7 +20,7 @@ use amethyst::{
     window::WindowBundle,
 };
 
-use crate::systems::{InputSystem, SnakeSystem, TileSystem};
+use crate::systems::{InputSystem, SnakeSystem, TickSystem, TileSystem};
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -45,7 +45,12 @@ fn main() -> amethyst::Result<()> {
         )
         // systems
         .with(TileSystem, "tile_system", &[])
-        .with(InputSystem::default(), "my_input_system", &["input_system"])
+        .with(TickSystem::default(), "tick_system", &[])
+        .with(
+            InputSystem::default(),
+            "my_input_system",
+            &["input_system", "tick_system"],
+        )
         .with(SnakeSystem::default(), "snake_system", &[])
         .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
             graph_creator::RenderingGraph::default(),

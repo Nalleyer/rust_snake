@@ -1,22 +1,21 @@
 // use std::collections::HashSet;
 use amethyst::{
-    core::{timing::Time, Transform},
     ecs::prelude::*,
     input::{InputHandler, StringBindings},
 };
 
-use crate::resources::{Board, Context, MessageChannel, MovingDirection, Msg};
+use crate::resources::{Board, MessageChannel, MovingDirection, Msg};
 
 #[derive(Debug)]
 pub struct InputSystem {
-    last_tick: f64,
+    message_reader: Option<ReaderId<Msg>>,
     pressed: Option<MovingDirection>,
 }
 
 impl Default for InputSystem {
     fn default() -> Self {
         InputSystem {
-            last_tick: 0.0,
+            message_reader: None,
             pressed: None,
         }
     }
@@ -24,16 +23,20 @@ impl Default for InputSystem {
 
 impl<'s> System<'s> for InputSystem {
     type SystemData = (
-        Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
-        ReadExpect<'s, Context>,
         Write<'s, MessageChannel>,
         ReadExpect<'s, Board>,
     );
 
-    fn run(&mut self, (time, input, ctx, mut messages, board): Self::SystemData) {
+    fn setup(&mut self, res: &mut Resources) {
+        Self::SystemData::setup(res);
+        self.message_reader = Some(res.fetch_mut::<MessageChannel>().register_reader());
+    }
+
+    fn run(&mut self, (input, mut messages, board): Self::SystemData) {
         let mx = input.axis_value("move_x");
         let my = input.axis_value("move_y");
+
         if self.pressed.is_none() {
             if let Some(x_value) = mx {
                 if let Some(input) = MovingDirection::from_axis_x(x_value) {
@@ -52,11 +55,13 @@ impl<'s> System<'s> for InputSystem {
             }
         }
 
-        let now = time.absolute_real_time_seconds();
-        let tick_duration = ctx.tick_duration;
-        let new_tick = self.last_tick + tick_duration;
-        if now > new_tick {
-            self.last_tick = new_tick;
+        let mut is_tick = false;
+        for message in messages.read(self.message_reader.as_mut().unwrap()) {
+            if let Msg::Tick(_) = message {
+                is_tick = true;
+            }
+        }
+        if is_tick {
             if let Some(direction) = &self.pressed {
                 if board.input_valid(direction) {
                     messages.single_write(Msg::Move(direction.clone()));
