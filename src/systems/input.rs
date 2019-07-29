@@ -1,22 +1,24 @@
-// use std::collections::HashSet;
 use amethyst::{
     ecs::prelude::*,
     input::{InputHandler, StringBindings},
 };
 
 use crate::resources::{Board, MessageChannel, MovingDirection, Msg};
+use std::collections::{HashSet, VecDeque};
 
 #[derive(Debug)]
 pub struct InputSystem {
     message_reader: Option<ReaderId<Msg>>,
-    pressed: Option<MovingDirection>,
+    pressing: HashSet<String>,
+    key_queue: VecDeque<MovingDirection>,
 }
 
 impl Default for InputSystem {
     fn default() -> Self {
         InputSystem {
             message_reader: None,
-            pressed: None,
+            pressing: HashSet::new(),
+            key_queue: VecDeque::new(),
         }
     }
 }
@@ -33,42 +35,37 @@ impl<'s> System<'s> for InputSystem {
         self.message_reader = Some(res.fetch_mut::<MessageChannel>().register_reader());
     }
 
-    fn run(&mut self, (input, mut messages, board): Self::SystemData) {
-        let mx = input.axis_value("move_x");
-        let my = input.axis_value("move_y");
+    fn run(&mut self, (inputs, mut messages, board): Self::SystemData) {
+        for axis in inputs.bindings.axes() {
+            let value = inputs.axis_value(axis).unwrap();
+            let was_down = self.pressing.contains(axis.as_str());
+            let maybe_direction = MovingDirection::from_axis(axis, value);
+            let is_down = maybe_direction.is_some();
 
-        if self.pressed.is_none() {
-            if let Some(x_value) = mx {
-                if let Some(input) = MovingDirection::from_axis_x(x_value) {
-                    self.pressed.replace(input);
+            if was_down && !is_down {
+                self.pressing.remove(axis.as_str());
+            }
+
+            if !was_down && is_down {
+                // new press
+                self.pressing.insert(axis.clone());
+                self.key_queue.push_back(maybe_direction.unwrap());
+            }
+
+            let mut is_tick = false;
+            for message in messages.read(self.message_reader.as_mut().unwrap()) {
+                if let Msg::Tick(_) = message {
+                    is_tick = true;
                 }
             }
-        }
-
-        if self.pressed.is_none() {
-            if let Some(y_value) = my {
-                if let Some(input) = MovingDirection::from_axis_y(y_value) {
-                    self.pressed.replace(input);
-                }
-            }
-        }
-
-        let mut is_tick = false;
-        for message in messages.read(self.message_reader.as_mut().unwrap()) {
-            if let Msg::Tick(_) = message {
-                is_tick = true;
-            }
-        }
-        if is_tick {
-            if let Some(direction) = &self.pressed {
-                if board.input_valid(direction) {
-                    messages.single_write(Msg::Move(direction.clone()));
+            if is_tick {
+                if let Some(direction) = self.key_queue.pop_front() {
+                    if board.input_valid(&direction) {
+                        messages.single_write(Msg::Move(direction.clone()));
+                    }
                 } else {
                     messages.single_write(Msg::Move(board.current_direction().clone()));
                 }
-                self.pressed = None;
-            } else {
-                messages.single_write(Msg::Move(board.current_direction().clone()));
             }
         }
     }

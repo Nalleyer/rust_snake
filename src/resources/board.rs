@@ -13,21 +13,19 @@ pub enum MovingDirection {
 }
 
 impl MovingDirection {
-    pub fn from_axis_x(x: f64) -> Option<Self> {
-        if x > 0.8 {
-            Some(MovingDirection::Right)
-        } else if x < -0.8 {
-            Some(MovingDirection::Left)
-        } else {
-            None
-        }
-    }
-
-    pub fn from_axis_y(y: f64) -> Option<Self> {
-        if y > 0.8 {
-            Some(MovingDirection::Up)
-        } else if y < -0.8 {
-            Some(MovingDirection::Down)
+    pub fn from_axis(axis: &str, value: f64) -> Option<Self> {
+        if value > 0.2 {
+            match axis {
+                "move_x" => Some(MovingDirection::Right),
+                "move_y" => Some(MovingDirection::Up),
+                _ => None,
+            }
+        } else if value < -0.2 {
+            match axis {
+                "move_x" => Some(MovingDirection::Left),
+                "move_y" => Some(MovingDirection::Down),
+                _ => None,
+            }
         } else {
             None
         }
