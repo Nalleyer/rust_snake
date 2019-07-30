@@ -8,7 +8,7 @@ mod resources;
 mod states;
 mod systems;
 
-use states::MyState;
+use states::LoadingState;
 
 use amethyst::{
     assets::Processor,
@@ -58,7 +58,7 @@ fn main() -> amethyst::Result<()> {
             graph_creator::RenderingGraph::default(),
         ));
 
-    let mut game = Application::new(resources_dir, MyState, game_data)?;
+    let mut game = Application::new(resources_dir, LoadingState::default(), game_data)?;
     game.run();
 
     Ok(())

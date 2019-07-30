@@ -1,3 +1,5 @@
-mod mainstate;
+mod main;
+mod loading;
 
-pub use self::mainstate::MyState;
+pub use self::main::MainState;
+pub use self::loading::LoadingState;
