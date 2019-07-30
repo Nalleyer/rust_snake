@@ -3,10 +3,12 @@
 **WIP**
 
 ## roadmap
-[x] wsad to move the snake
-[x] random food gen
-[ ] add a loading state to avoid fast moving on starting
-[ ] snake die and ui stuff
+
+* [x] wsad to move the snake
+* [x] random food gen
+* [ ] add a loading state to avoid fast moving on starting
+* [ ] snake die and ui stuff
+
 
 ## How to run
 
