@@ -14,6 +14,7 @@ use amethyst::{
         GraphCreator,
     },
     window::{ScreenDimensions, Window},
+    ui::{DrawUiDesc},
 };
 
 #[derive(Default)]
@@ -77,6 +78,7 @@ impl GraphCreator<DefaultBackend> for RenderingGraph {
         let sprite = graph_builder.add_node(
             SubpassBuilder::new()
                 .with_group(DrawFlat2DDesc::new().builder())
+                .with_group(DrawUiDesc::default().builder())
                 .with_color(color)
                 .with_depth_stencil(depth)
                 .into_pass(),

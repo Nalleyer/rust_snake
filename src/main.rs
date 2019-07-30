@@ -18,6 +18,7 @@ use amethyst::{
     renderer::{sprite::SpriteSheet, types::DefaultBackend, RenderingSystem},
     utils::application_root_dir,
     window::WindowBundle,
+    ui::{UiBundle},
 };
 
 use crate::systems::{InputSystem, SnakeSystem, TickSystem, TileSystem};
@@ -38,6 +39,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(WindowBundle::from_config_path(display_config_path))?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
+        .with_bundle(UiBundle::<DefaultBackend, StringBindings>::new())?
         .with(
             Processor::<SpriteSheet>::new(),
             "sprite_sheet_processor",
