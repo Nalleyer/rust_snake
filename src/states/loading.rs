@@ -1,5 +1,5 @@
 use crate::components::{TileMap, TileMapConfig};
-use crate::resources::{get_screen_size, Board, Context};
+use crate::resources::{get_screen_size, Board, Context, Game, State};
 use crate::states::MainState;
 
 use amethyst::{core::Transform, prelude::*, renderer::Camera};
@@ -18,12 +18,12 @@ impl Default for LoadingState {
 
 impl SimpleState for LoadingState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        println!("loading");
         let world = data.world;
         world.register::<TileMap>();
         initialise_camera(world);
 
         world.add_resource(Context::new());
+        world.add_resource(Game::new(State::Loading));
 
         let tile_config = TileMapConfig::from_path("resources/assets/tileset.ron");
         let board = Board::new(tile_config.size_x, tile_config.size_y);
@@ -38,16 +38,17 @@ impl SimpleState for LoadingState {
 
         world.create_entity().with(transform).with(tilemap).build();
         self.load_complete = true;
-        println!("loaded");
     }
 
     fn update(&mut self, _: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         match &self.load_complete {
             false => Trans::None,
-            true => Trans::Switch(Box::new(
-                MainState {}
-            ))
+            true => Trans::Switch(Box::new(MainState {})),
         }
+    }
+
+    fn on_resume(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
+        data.world.write_resource::<Game>().set_state(State::Loading);
     }
 }
 

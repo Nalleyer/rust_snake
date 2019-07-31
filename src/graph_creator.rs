@@ -13,8 +13,8 @@ use amethyst::{
         types::DefaultBackend,
         GraphCreator,
     },
+    ui::DrawUiDesc,
     window::{ScreenDimensions, Window},
-    ui::{DrawUiDesc},
 };
 
 #[derive(Default)]

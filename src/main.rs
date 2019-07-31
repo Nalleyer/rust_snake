@@ -16,9 +16,9 @@ use amethyst::{
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{sprite::SpriteSheet, types::DefaultBackend, RenderingSystem},
+    ui::UiBundle,
     utils::application_root_dir,
     window::WindowBundle,
-    ui::{UiBundle},
 };
 
 use crate::systems::{InputSystem, SnakeSystem, TickSystem, TileSystem};

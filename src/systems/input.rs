@@ -3,7 +3,7 @@ use amethyst::{
     input::{InputHandler, StringBindings},
 };
 
-use crate::resources::{Board, MessageChannel, MovingDirection, Msg};
+use crate::resources::{Board, MessageChannel, MovingDirection, Msg, Game, State};
 use std::collections::{HashSet, VecDeque};
 
 #[derive(Debug)]
@@ -28,6 +28,7 @@ impl<'s> System<'s> for InputSystem {
         Read<'s, InputHandler<StringBindings>>,
         Write<'s, MessageChannel>,
         ReadExpect<'s, Board>,
+        ReadExpect<'s, Game>,
     );
 
     fn setup(&mut self, res: &mut Resources) {
@@ -35,7 +36,10 @@ impl<'s> System<'s> for InputSystem {
         self.message_reader = Some(res.fetch_mut::<MessageChannel>().register_reader());
     }
 
-    fn run(&mut self, (inputs, mut messages, board): Self::SystemData) {
+    fn run(&mut self, (inputs, mut messages, board, game): Self::SystemData) {
+        if &State::Main != game.get_state() {
+            return;
+        }
         for axis in inputs.bindings.axes() {
             let value = inputs.axis_value(axis).unwrap();
             let was_down = self.pressing.contains(axis.as_str());
