@@ -3,7 +3,7 @@ use amethyst::{
     input::{InputHandler, StringBindings},
 };
 
-use crate::resources::{Board, MessageChannel, MovingDirection, Msg, Game, State};
+use crate::resources::{Board, Game, MessageChannel, MovingDirection, Msg, State};
 use std::collections::{HashSet, VecDeque};
 
 #[derive(Debug)]

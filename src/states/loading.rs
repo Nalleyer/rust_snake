@@ -48,7 +48,9 @@ impl SimpleState for LoadingState {
     }
 
     fn on_resume(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
-        data.world.write_resource::<Game>().set_state(State::Loading);
+        data.world
+            .write_resource::<Game>()
+            .set_state(State::Loading);
     }
 }
 

@@ -2,7 +2,7 @@ use amethyst::{core::Transform, ecs::prelude::*, renderer::sprite::SpriteRender}
 use std::f64::consts::PI;
 
 use crate::{
-    assets::{T_EMPTY, T_FOOD},
+    assets::{T_CORNER, T_EMPTY, T_FOOD},
     components::TileMap,
     resources::{Board, MovingDirection},
 };
@@ -31,7 +31,12 @@ impl<'s> System<'s> for TileSystem {
                         }
 
                         if let Some(trans) = transforms.get_mut(entity) {
-                            trans.set_rotation_z_axis(match cell.direction {
+                            let ref_direction = if cell.ttype == T_CORNER {
+                                &cell.corner_directon
+                            } else {
+                                &cell.direction
+                            };
+                            trans.set_rotation_z_axis(match ref_direction {
                                 MovingDirection::Up => 0.0,
                                 MovingDirection::Down => PI,
                                 MovingDirection::Right => -PI * 0.5,

@@ -1,5 +1,5 @@
 extern crate rand;
-use crate::assets::{T_BODY, T_HEAD};
+use crate::assets::{T_BODY, T_CORNER, T_HEAD, T_TAIL};
 
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
@@ -47,6 +47,7 @@ impl MovingDirection {
 pub struct Cell {
     pub ttype: u8,
     pub direction: MovingDirection,
+    pub corner_directon: MovingDirection,
     pub pos: usize,
 }
 
@@ -55,6 +56,7 @@ impl Default for Cell {
         Cell {
             ttype: 0,
             direction: MovingDirection::Up,
+            corner_directon: MovingDirection::Up,
             pos: 0,
         }
     }
@@ -65,6 +67,7 @@ impl Cell {
         Cell {
             ttype,
             direction,
+            corner_directon: MovingDirection::Up, //default
             pos,
         }
     }
@@ -105,6 +108,10 @@ impl Board {
         self.food
     }
 
+    fn get_cell(&self, idx: usize) -> &Cell {
+        &self.snake.0[idx]
+    }
+
     /// get (x_axis, y_axis) from idx
     pub fn idx_2_pos(&self, idx: usize) -> (usize, usize) {
         let x = idx / self.height;
@@ -116,18 +123,15 @@ impl Board {
         x * self.height + y
     }
 
-    pub fn move_snake(&mut self, direction: &MovingDirection) {
-        let new_cell = self.get_new_head(direction);
+    fn ate(&mut self, new_body: Cell) {
+        self.new_bodies.push_back(new_body);
+        self.food = self.get_new_food();
+    }
 
-        if new_cell.pos == self.food {
-            self.new_bodies.push_back(new_cell.clone());
-            self.food = self.get_new_food();
-        }
-
-        let is_has_new_body = self.new_bodies.len() > 0
-            && self.snake.0[self.snake.0.len() - 1].pos == self.new_bodies[0].pos;
-
+    fn digest(&mut self, direction: &MovingDirection, new_cell: Cell) {
         let len = self.snake.0.len();
+
+        // move towards tail
         for idx in (1..len).rev() {
             self.snake.0[idx] = self.snake.0[idx - 1].clone();
         }
@@ -136,13 +140,67 @@ impl Board {
             self.snake.0[1].ttype = T_BODY;
             self.snake.0[1].direction = direction.clone();
         }
+
+        // add new head
         self.snake.0[0] = new_cell;
+    }
+
+    fn maybe_append(&mut self) {
+        let is_has_new_body = self.new_bodies.len() > 0
+            && self.snake.0[self.snake.0.len() - 1].pos == self.new_bodies[0].pos;
 
         if is_has_new_body {
             let mut new_body = self.new_bodies.pop_front().unwrap();
             new_body.ttype = T_BODY;
             self.snake.0.push(new_body);
         }
+    }
+
+    fn update_corner(&mut self) {
+        let len = self.snake.0.len();
+        for idx in 1..len - 1 {
+            // corner up:
+            //  |
+            //  +---
+            let now_cell_direction = &self.get_cell(idx).direction.clone();
+            let next_cell_direction = &self.get_cell(idx + 1).direction.clone();
+            if now_cell_direction != next_cell_direction {
+                self.snake.0[idx].ttype = T_CORNER;
+                self.snake.0[idx].corner_directon =
+                    match (&now_cell_direction, &next_cell_direction) {
+                        (&MovingDirection::Left, &MovingDirection::Up)
+                        | (&MovingDirection::Down, &MovingDirection::Right) => {
+                            MovingDirection::Down
+                        }
+                        (&MovingDirection::Up, &MovingDirection::Right)
+                        | (&MovingDirection::Left, &MovingDirection::Down) => MovingDirection::Left,
+                        (&MovingDirection::Right, &MovingDirection::Down)
+                        | (&MovingDirection::Up, &MovingDirection::Left) => MovingDirection::Up,
+                        (&MovingDirection::Down, &MovingDirection::Left)
+                        | (&MovingDirection::Right, &MovingDirection::Up) => MovingDirection::Right,
+                        _ => MovingDirection::Up,
+                    }
+            }
+        }
+    }
+
+    fn update_tail(&mut self) {
+        let len = self.snake.0.len();
+        self.snake.0[len - 1].ttype = T_TAIL;
+    }
+
+    pub fn move_snake(&mut self, direction: &MovingDirection) {
+        let new_cell = self.get_new_head(direction);
+
+        if new_cell.pos == self.food {
+            self.ate(new_cell.clone());
+        }
+
+        self.digest(direction, new_cell);
+
+        self.maybe_append();
+        self.update_corner();
+        self.update_tail();
     }
 
     pub fn current_direction(&self) -> &MovingDirection {
