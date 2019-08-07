@@ -2,16 +2,33 @@ use crate::components::{TileMap, TileMapConfig};
 use crate::resources::{get_screen_size, Board, Context, Game, State};
 use crate::states::MainState;
 
-use amethyst::{core::Transform, prelude::*, renderer::Camera};
+use amethyst::{
+    core::Transform,
+    prelude::*,
+    renderer::Camera,
+    assets::{
+        Prefab,
+        PrefabLoader,
+        RonFormat,
+        Handle,
+        ProgressCounter,
+        Completion,
+    },
+    ui::{
+        UiCreator,
+    },
+};
 
 pub struct LoadingState {
     load_complete: bool,
+    load_progress: ProgressCounter,
 }
 
 impl Default for LoadingState {
     fn default() -> Self {
         LoadingState {
             load_complete: false,
+            load_progress: ProgressCounter::default(),
         }
     }
 }
@@ -19,11 +36,17 @@ impl Default for LoadingState {
 impl SimpleState for LoadingState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
+
+        world.exec(|mut creator: UiCreator| {
+            creator.create("ui/loading.ron", &mut self.load_progress);
+        });
+
         world.register::<TileMap>();
         initialise_camera(world);
 
         world.add_resource(Context::new());
         world.add_resource(Game::new(State::Loading));
+
 
         let tile_config = TileMapConfig::from_path("resources/assets/tileset.ron");
         let board = Board::new(tile_config.size_x, tile_config.size_y);
@@ -43,7 +66,13 @@ impl SimpleState for LoadingState {
     fn update(&mut self, _: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         match &self.load_complete {
             false => Trans::None,
-            true => Trans::Switch(Box::new(MainState {})),
+            true => {
+                match &self.load_progress.complete() {
+                    Completion::Loading => Trans::None,
+                    Completion::Complete => Trans::Switch(Box::new(MainState {})),
+                    Completion::Failed => Trans::Quit,
+                }
+            },
         }
     }
 

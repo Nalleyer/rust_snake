@@ -1,0 +1,82 @@
+#![enable(implicit_some)]
+Container (
+    transform: (
+        id: "container",
+        anchor: Middle,
+        stretch: XY( x_margin: 0., y_margin: 0.),
+    ),
+    children: [
+        Text (
+            transform: (
+                id: "name",
+                anchor: TopMiddle,
+                x: 0.,
+                y: -100.,
+                width: 800.,
+                height: 40.,
+                transparent: true,
+            ),
+            text: (
+                text: "",
+                font_size: 35.,
+                color: (1., 1., 1., 1.),
+                font: File("font/square.ttf", Ttf, ()),
+                align: Middle,
+            ),
+        ),
+        Text (
+            transform: (
+                id: "comment",
+                anchor: TopMiddle,
+                x: 0.,
+                y: -150.,
+                width: 800.,
+                height: 40.,
+                transparent: true,
+            ),
+            text: (
+                text: "",
+                font_size: 20.,
+                color: (1., 1., 1., 1.),
+                font: File("font/square.ttf", Ttf, ()),
+                align: Middle,
+            ),
+        ),
+        Text (
+            transform: (
+                id: "rocket_passengers",
+                anchor: TopLeft,
+                x: 210.,
+                y: -25.,
+                width: 400.,
+                height: 40.,
+                transparent: true,
+            ),
+            text: (
+                text: "Passengers: N/A",
+                font_size: 20.,
+                color: (1., 1., 1., 1.),
+                font: File("font/square.ttf", Ttf, ()),
+                align: TopLeft,
+            ),
+        ),
+        Text (
+            transform: (
+                id: "rocket_health",
+                anchor: TopLeft,
+                x: 210.,
+                y: -50.,
+                width: 0., // 400
+                height: 40.,
+                transparent: true,
+            ),
+            text: (
+                text: "Health: N/A",
+                font_size: 20.,
+                color: (1., 1., 1., 1.),
+                font: File("font/square.ttf", Ttf, ()),
+                align: TopLeft,
+            ),
+        ),
+    ]
+)
